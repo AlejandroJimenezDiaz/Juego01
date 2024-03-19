@@ -25,7 +25,7 @@ var score = 0;
 var scoreText;
 
 function preload() {
-    this.load.image('sky', 'assets/sky.png');
+    this.load.image('fondoretro', 'assets/fondoretro.jpg');
     this.load.image("barra", "assets/barra.png");
     this.load.image("ground", "assets/platform.png");
     this.load.image("star","assets/star.png");
@@ -34,7 +34,7 @@ function preload() {
 }
 
 function create() {
-    this.add.image(400, 300, 'sky');
+    this.add.image(400, 300, 'fondoretro');
     
 
     platforms = this.physics.add.staticGroup();
