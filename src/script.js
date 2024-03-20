@@ -19,10 +19,12 @@ var config = {
     }
 }
 
-var game = new Phaser.Game(config);
+
 
 var score = 0;
 var scoreText;
+var gameOver = false;
+var game = new Phaser.Game(config);
 
 function preload() {
     this.load.image('fondoretro', 'assets/fondoretro.jpg');
@@ -34,16 +36,26 @@ function preload() {
 }
 
 function create() {
-    this.add.image(400, 300, 'fondoretro');
+    this.add.image(config.width / 2, config.height / 2, 'fondoretro');
     
 
     platforms = this.physics.add.staticGroup();
 
-    platforms.create(400,568,"barra");
-    platforms.create(600,400,"barra");
-    platforms.create(50,250,"barra");
-    platforms.create(750,220,"barra");
-    platforms.create(120,550, "barra");
+    platforms.create(500,500,"barra");
+    platforms.create(60,450,"barra");
+    platforms.create(750,420,"barra");
+    platforms.create(600,420,"barra");
+    platforms.create(250,420,"barra");
+    platforms.create(120,550, "barra"); 
+    platforms.create(400,268,"barra");
+    platforms.create(500,200,"barra");
+    platforms.create(60,150,"barra");
+    platforms.create(750,320,"barra");
+    platforms.create(600,120,"barra");
+    platforms.create(250,120,"barra");
+    platforms.create(120,350, "barra"); 
+    platforms.create(400,368,"barra");
+ 
 
     player = this.physics.add.sprite(100,450,"dude");
 
@@ -90,23 +102,38 @@ function create() {
     this.physics.add.overlap(player,stars,collectStart,null,true)
 
     scoreText = this.add.text(16,16,"score: 0", {fontSize:"32px", fill :"white"});
+   
+
+    bombs = this.physics.add.group();
+
+    this.physics.add.collider(bombs,platforms);
+
+    this.physics.add.collider(player,bombs,hitBomb,null,this);
 }
 
 function update() {
+    if (gameOver){
+        finalText = this.add.text(200,300,"score: 0", {fontSize:"40px", fill :"dark"});
+        finalText.setText("GAME OVER : "+ score)
+        return;
 
+    }
     if(cursors.left.isDown){
         player.setVelocityX(-160);
         player.anims.play("left",true);
+        
     }else if(cursors.right.isDown){
         player.setVelocityX(160);
         player.anims.play("right",true);
+        
     }else{
         player.setVelocityX(0);
         player.anims.play("turn",true);
+       
     }
     
 if(cursors.up.isDown && player.body.touching.down){
-    player.setVelocityY(-230);
+    player.setVelocityY(-250);
 }
 
 }
@@ -116,4 +143,28 @@ function collectStart(player,star){
     
     score +=10;
     scoreText.setText("Score : "+ score)
+
+    if(stars.countActive(true) ===0){
+        stars.children.iterate(function(child) {
+            child.enableBody(true,child.x,0,true,true);
+        });
+        var x = (player.x<400) ? Phaser.Math.Between(400,800) : Phaser.Math.Between(0,400)
+        var bomb = bombs.create(x, 16, 'bomb');
+        bomb.setBounce(1);
+        bomb.setCollideWorldBounds(true);
+        bomb.setVelocity(Phaser.Math.Between(-200,200),20);
+    }
+
+
+}
+
+function hitBomb(player,bomb){
+
+    this.physics.pause();
+
+    player.setTint(0xff0000);
+
+    player.anims.play('turn');
+
+    gameOver = true;
 }
